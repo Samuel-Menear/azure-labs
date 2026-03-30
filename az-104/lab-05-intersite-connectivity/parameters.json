@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "routeTables_rt_CoreServices_name": {
+            "value": null
+        },
+        "virtualMachines_CoreServicesVM_name": {
+            "value": null
+        },
+        "virtualMachines_ManufacturingVM_name": {
+            "value": null
+        },
+        "virtualNetworks_CoreServicesVnet_name": {
+            "value": null
+        },
+        "virtualNetworks_ManufacturingVnet_name": {
+            "value": null
+        },
+        "publicIPAddresses_CoreServicesVM_ip_name": {
+            "value": null
+        },
+        "publicIPAddresses_ManufacturingVM_ip_name": {
+            "value": null
+        },
+        "networkInterfaces_coreservicesvm644_z3_name": {
+            "value": null
+        },
+        "networkInterfaces_manufacturingvm722_z3_name": {
+            "value": null
+        },
+        "networkSecurityGroups_CoreServicesVM_nsg_name": {
+            "value": null
+        },
+        "networkSecurityGroups_ManufacturingVM_nsg_name": {
+            "value": null
+        }
+    }
+}
