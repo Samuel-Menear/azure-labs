@@ -8,7 +8,7 @@ with a separate manufacturing network — a pattern applicable to production/dev
 separation or subsidiary isolation.
 
 > **Note:** VMs deployed to **West Europe, Zone 3** rather than East US as specified in the
-> lab default — region and zone selection has no impact on the peering, routing, or
+> lab default. Region and zone selection has no impact on the peering, routing, or
 > connectivity behaviour demonstrated. VM size changed from Standard_D2s_v3 to
 > **Standard_B2ls_v2** for cost efficiency. Networking behaviour is identical at either size.
 
@@ -52,13 +52,13 @@ separation or subsidiary isolation.
 ### VNets do not communicate by default
 Before peering was configured, Network Watcher's Connection Troubleshoot confirmed the two
 VMs were unreachable from each other despite being in the same subscription and resource
-group. This is the expected default — VNets are isolated boundaries and connectivity must
+group. This is the expected default, VNets are isolated boundaries and connectivity must
 be explicitly enabled.
 
 ### Virtual network peering
 Peering was configured bidirectionally from CoreServicesVnet, which automatically creates
 both peering links in a single operation. Once connected, peered VNets appear as one for
-routing purposes and traffic travels across the Microsoft backbone — not the public internet.
+routing purposes and traffic travels across the Microsoft backbon, not the public internet.
 The peering status must show **Connected** on both sides before traffic flows.
 
 ### Network Watcher — Connection Troubleshoot
@@ -69,7 +69,7 @@ connectivity issues and a core AZ-104 exam topic.
 
 ### PowerShell connectivity testing via Run Command
 Post-peering connectivity was verified from ManufacturingVM using the **Run Command**
-feature in the portal — no RDP or public IP required. The command used:
+feature in the portal, no RDP or public IP required. The command used:
 
 ```powershell
 Test-NetConnection <CoreServicesVM private IP> -port 3389
@@ -86,7 +86,7 @@ for the core services VNet (10.0.0.0/16) via a **virtual appliance** at 10.0.1.7
 perimeter subnet.
 
 This is the standard pattern for inserting a Network Virtual Appliance (NVA) — such as
-Azure Firewall, a third-party firewall VM, or an IDS — into the traffic path between
+Azure Firewall, a third-party firewall VM, or an IDS, into the traffic path between
 network segments. The NVA address (10.0.1.7) is a placeholder representing a future
 appliance to be deployed in the perimeter subnet.
 
