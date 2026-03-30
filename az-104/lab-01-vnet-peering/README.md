@@ -7,8 +7,8 @@ It simulates a real-world pattern where a centralised hub VNet hosts shared serv
 ## Architecture
 
 ![Architecture diagram showing app-vnet and hub-vnet connected via peering](diagram.png)
-> **Note:** Deployed to UK South rather than East US as shown — 
-> region selection has no impact on VNet topology or peering behaviour.
+> **Note:** Deployed to UK South rather than East US as shown.
+>  Region selection has no impact on VNet topology or peering behaviour.
 
 ## Resources Deployed
 
