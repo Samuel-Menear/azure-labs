@@ -1,0 +1,453 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dnszones_snakeontherun_com_name": {
+            "defaultValue": "snakeontherun.com",
+            "type": "String"
+        },
+        "virtualNetworks_CoreServicesVnet_name": {
+            "defaultValue": "CoreServicesVnet",
+            "type": "String"
+        },
+        "applicationSecurityGroups_asg_web_name": {
+            "defaultValue": "asg-web",
+            "type": "String"
+        },
+        "networkSecurityGroups_myNSGSecure_name": {
+            "defaultValue": "myNSGSecure",
+            "type": "String"
+        },
+        "virtualNetworks_ManufacturingVnet_name": {
+            "defaultValue": "ManufacturingVnet",
+            "type": "String"
+        },
+        "privateDnsZones_private_snakeontherun_com_name": {
+            "defaultValue": "private.snakeontherun.com",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/applicationSecurityGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('applicationSecurityGroups_asg_web_name')]",
+            "location": "uksouth",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/dnszones",
+            "apiVersion": "2023-07-01-preview",
+            "name": "[parameters('dnszones_snakeontherun_com_name')]",
+            "location": "global",
+            "properties": {
+                "zoneType": "Public"
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2024-06-01",
+            "name": "[parameters('privateDnsZones_private_snakeontherun_com_name')]",
+            "location": "global",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualNetworks_ManufacturingVnet_name')]",
+            "location": "uksouth",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.30.0.0/16"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "SensorSubnet1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_ManufacturingVnet_name'), 'SensorSubnet1')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "10.30.20.0/24"
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "SensorSubnet2",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_ManufacturingVnet_name'), 'SensorSubnet2')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "10.30.21.0/24"
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/A",
+            "apiVersion": "2023-07-01-preview",
+            "name": "[concat(parameters('dnszones_snakeontherun_com_name'), '/www')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_snakeontherun_com_name'))]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "ARecords": [
+                    {
+                        "ipv4Address": "10.1.1.4"
+                    }
+                ],
+                "targetResource": {},
+                "trafficManagementProfile": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/NS",
+            "apiVersion": "2023-07-01-preview",
+            "name": "[concat(parameters('dnszones_snakeontherun_com_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_snakeontherun_com_name'))]"
+            ],
+            "properties": {
+                "TTL": 172800,
+                "NSRecords": [
+                    {
+                        "nsdname": "ns1-04.azure-dns.com."
+                    },
+                    {
+                        "nsdname": "ns2-04.azure-dns.net."
+                    },
+                    {
+                        "nsdname": "ns3-04.azure-dns.org."
+                    },
+                    {
+                        "nsdname": "ns4-04.azure-dns.info."
+                    }
+                ],
+                "targetResource": {},
+                "trafficManagementProfile": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/SOA",
+            "apiVersion": "2023-07-01-preview",
+            "name": "[concat(parameters('dnszones_snakeontherun_com_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_snakeontherun_com_name'))]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "SOARecord": {
+                    "email": "azuredns-hostmaster.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "ns1-04.azure-dns.com.",
+                    "minimumTTL": 300,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                },
+                "targetResource": {},
+                "trafficManagementProfile": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('networkSecurityGroups_myNSGSecure_name')]",
+            "location": "uksouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_asg_web_name'))]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowASG",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_myNSGSecure_name'), 'AllowASG')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "80",
+                                "443"
+                            ],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": [],
+                            "sourceApplicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_asg_web_name'))]"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "DenyInternetOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_myNSGSecure_name'), 'DenyInternetOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Deny",
+                            "priority": 4096,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('networkSecurityGroups_myNSGSecure_name'), '/DenyInternetOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "Internet",
+                "access": "Deny",
+                "priority": 4096,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_private_snakeontherun_com_name'), '/sensorvm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_private_snakeontherun_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.1.1.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_private_snakeontherun_com_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_private_snakeontherun_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualNetworks_CoreServicesVnet_name')]",
+            "location": "uksouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.20.0.0/16"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "DatabaseSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_CoreServicesVnet_name'), 'DatabaseSubnet')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "10.20.20.0/24"
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "SharedServicesSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_CoreServicesVnet_name'), 'SharedServicesSubnet')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "10.20.10.0/24"
+                            ],
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('virtualNetworks_CoreServicesVnet_name'), '/DatabaseSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_CoreServicesVnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "10.20.20.0/24"
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('virtualNetworks_ManufacturingVnet_name'), '/SensorSubnet1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_ManufacturingVnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "10.30.20.0/24"
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('virtualNetworks_ManufacturingVnet_name'), '/SensorSubnet2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_ManufacturingVnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "10.30.21.0/24"
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('networkSecurityGroups_myNSGSecure_name'), '/AllowASG')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_asg_web_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [
+                    "80",
+                    "443"
+                ],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": [],
+                "sourceApplicationSecurityGroups": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_asg_web_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_private_snakeontherun_com_name'), '/manufacturing-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_private_snakeontherun_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_ManufacturingVnet_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_ManufacturingVnet_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-07-01",
+            "name": "[concat(parameters('virtualNetworks_CoreServicesVnet_name'), '/SharedServicesSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_CoreServicesVnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "10.20.10.0/24"
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_myNSGSecure_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        }
+    ]
+}
