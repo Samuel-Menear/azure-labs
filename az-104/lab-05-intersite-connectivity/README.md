@@ -72,7 +72,7 @@ Post-peering connectivity was verified from ManufacturingVM using the **Run Comm
 feature in the portal, no RDP or public IP required. The command used:
 
 ```powershell
-Test-NetConnection <CoreServicesVM private IP> -port 3389
+Test-NetConnection 10.0.0.4 -port 3389
 ```
 
 Run Command executes scripts directly on a VM through the Azure agent, making it useful
