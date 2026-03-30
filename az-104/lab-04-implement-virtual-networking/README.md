@@ -89,8 +89,8 @@ at priority 4096 overrides it. Lower priority numbers always wins, so 4096 takes
 | Name server records | Assigned by Azure | Not applicable |
 | VNet link required | No | Yes |
 
-The private zone `private.contoso.com` is linked to ManufacturingVnet via `manufacturing-link`, 
-meaning only resources inside that VNet can resolve `sensorvm.private.contoso.com`. This is 
+The private zone `private.snakeontherun.com` is linked to ManufacturingVnet via `manufacturing-link`, 
+meaning only resources inside that VNet can resolve `sensorvm.private.snakeontherun.com`. This is 
 the standard pattern for internal service discovery without exposing DNS records publicly.
 
 ---
