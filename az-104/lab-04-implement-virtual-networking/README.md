@@ -8,7 +8,7 @@ and Application Security Groups (ASGs), and setting up both public and private A
 It introduces a two-VNet topology representing a core services network and a manufacturing 
 network, laying the groundwork for a realistic enterprise network architecture.
 
-> **Note:** Deployed to UK South rather than East US as shown in the lab — region selection 
+> **Note:** Deployed to UK South rather than East US as shown in the lab. Region selection 
 > has no impact on the topology, security rules, or DNS behaviour demonstrated.
 
 ## Architecture
@@ -42,11 +42,11 @@ network, laying the groundwork for a realistic enterprise network architecture.
 
 | Resource | Name | Type |
 |---|---|---|
-| DNS Zone | contoso.com | Public |
-| A Record | www.contoso.com | Points to 10.1.1.4 |
-| Private DNS Zone | private.contoso.com | Private |
+| DNS Zone | snakeontherun.com | Public |
+| A Record | www.snakeontherun.com | Points to 10.1.1.4 |
+| Private DNS Zone | private.snakeontherun.com | Private |
 | VNet Link | manufacturing-link | Linked to ManufacturingVnet |
-| A Record | sensorvm.private.contoso.com | Points to 10.1.1.4 |
+| A Record | sensorvm.private.snakeontherun.com | Points to 10.1.1.4 |
 
 ---
 
@@ -60,7 +60,7 @@ adapt. The exported template files are included in this folder.
 
 ### Non-overlapping address spaces
 CoreServicesVnet uses 10.20.0.0/16 and ManufacturingVnet uses 10.30.0.0/16. Overlapping 
-address spaces cause routing failures and complicate troubleshooting — a common production 
+address spaces cause routing failures and complicate troubleshooting, a common production 
 gotcha when multiple teams independently provision VNets without a central IP addressing scheme.
 
 ### Application Security Groups vs Network Security Groups
@@ -98,7 +98,7 @@ the standard pattern for internal service discovery without exposing DNS records
 ## Infrastructure as Code
 
 CoreServicesVnet was created via the portal and exported as an ARM template. ManufacturingVnet 
-was created by modifying that template — demonstrating a realistic IaC workflow.
+was created by modifying that template, demonstrating a realistic IaC workflow.
 
 To redeploy the CoreServicesVnet:
 
