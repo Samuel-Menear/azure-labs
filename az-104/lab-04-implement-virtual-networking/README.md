@@ -77,7 +77,7 @@ that ASG automatically inherits the rule without any NSG changes.
 ### NSG default rules and override behaviour
 Azure NSGs include non-deletable default rules. The outbound `AllowInternetOutBound` rule 
 at priority 65001 allows all internet egress by default. The `DenyInternetOutbound` rule 
-at priority 4096 overrides it — lower priority numbers win, so 4096 takes precedence over 
+at priority 4096 overrides it. Lower priority numbers always wins, so 4096 takes precedence over 
 65001, blocking outbound internet traffic from the subnet.
 
 ### Public vs Private DNS Zones
