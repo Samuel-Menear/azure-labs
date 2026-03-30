@@ -36,7 +36,7 @@ It simulates a real-world pattern where a centralised hub VNet hosts shared serv
 ## Infrastructure as Code
 The ARM template for this deployment is included in this folder. To redeploy:
 ```bash
-az group create --name AZ-104_Lab --location eastus
+az group create --name AZ-104_Lab --location uksouth
 az deployment group create \
   --resource-group AZ-104_Lab \
   --template-file template.json \
